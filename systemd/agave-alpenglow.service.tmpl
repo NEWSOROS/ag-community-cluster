@@ -1,0 +1,39 @@
+[Unit]
+Description=Solana Alpenglow community cluster validator
+After=network.target syslog.target systemd-sysctl.service
+Wants=systemd-sysctl.service
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+Type=simple
+Restart=on-failure
+RestartSec=10
+User=__AG_USER__
+LimitNOFILE=2048000
+LimitMEMLOCK=2000000000
+WorkingDirectory=__AG_HOME__
+Environment="PATH=/bin:/usr/bin:__AG_INSTALL_DIR__/bin"
+Environment="RUST_LOG=__RUST_LOG__"
+Environment="SOLANA_METRICS_CONFIG=__SOLANA_METRICS_CONFIG__"
+
+ExecStart=__AG_BIN__ \
+  --rpc-port __AG_RPC_PORT__ \
+  --full-rpc-api \
+  --identity __AG_IDENTITY__ \
+  --vote-account __AG_VOTE_ACCOUNT__ \
+  --log __AG_LOG__ \
+  --ledger __AG_LEDGER__ \
+  --accounts __AG_ACCOUNTS__ \
+  --dynamic-port-range __AG_DYNAMIC_PORT_RANGE__ \
+  --entrypoint __AG_ENTRYPOINT__ \
+  --limit-ledger-size \
+  --expected-shred-version __AG_EXPECTED_SHRED_VERSION__ \
+  --expected-bank-hash __AG_EXPECTED_BANK_HASH__ \
+  --expected-genesis-hash __AG_EXPECTED_GENESIS_HASH__ \
+  --wait-for-supermajority __AG_WAIT_FOR_SUPERMAJORITY__ \
+  --no-port-check \
+  --no-poh-speed-test
+
+[Install]
+WantedBy=multi-user.target

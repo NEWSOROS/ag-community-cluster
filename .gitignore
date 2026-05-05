@@ -1,0 +1,16 @@
+# Никогда не коммитить приватные ключи
+*.json
+!**/example*.json
+
+# Локальные оверрайды
+config/env.local.sh
+config/*.local
+
+# Логи и снимки
+*.log
+*.log.*
+
+# IDE
+.idea/
+.vscode/
+.DS_Store
