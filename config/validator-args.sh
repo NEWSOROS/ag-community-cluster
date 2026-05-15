@@ -17,7 +17,8 @@ AG_VALIDATOR_ARGS=(
   --ledger           "$AG_LEDGER"
   --accounts         "$AG_ACCOUNTS"
   --dynamic-port-range          "$AG_DYNAMIC_PORT_RANGE"
-  --entrypoint                  "$AG_ENTRYPOINT"
+  --entrypoint                  "$AG_ENTRYPOINT1"
+  --entrypoint                  "$AG_ENTRYPOINT2"
   --limit-ledger-size
   --expected-shred-version      "$AG_EXPECTED_SHRED_VERSION"
   --expected-bank-hash          "$AG_EXPECTED_BANK_HASH"

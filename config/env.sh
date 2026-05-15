@@ -9,9 +9,15 @@ export AG_HOME="${AG_HOME:-/home/$AG_USER}"
 # ===== Source build location =====
 # Where build-alpenglow.sh clones AshwinSekar/solana
 export AG_SRC_DIR="${AG_SRC_DIR:-$AG_HOME/agave-alpenglow}"
+# Git ref to check out (tag from Ashwin's gist).
+# 2026-05-15: ag-v0.2.0  (cluster genesis re-spun, super-majority pending)
+export AG_GIT_REF="${AG_GIT_REF:-ag-v0.2.0}"
 # Where the built binary is symlinked
 export AG_INSTALL_DIR="${AG_INSTALL_DIR:-$AG_HOME/.local/share/solana/alpenglow/active}"
 export AG_BIN="${AG_BIN:-$AG_INSTALL_DIR/bin/agave-validator}"
+# Expected `agave-validator --version` after build (for sanity check):
+#   agave-validator 0.2.0 (src:fa5b2c96; feat:f4b7e03c, client:Agave)
+export AG_EXPECTED_VERSION_PREFIX="${AG_EXPECTED_VERSION_PREFIX:-agave-validator 0.2.0}"
 
 # ===== Keypairs =====
 export AG_SECRETS_DIR="${AG_SECRETS_DIR:-$AG_HOME/.secrets/alpenglow}"
@@ -34,10 +40,13 @@ export AG_DYNAMIC_PORT_RANGE="${AG_DYNAMIC_PORT_RANGE:-9000-12500}"
 export AG_RPC_PORT="${AG_RPC_PORT:-8899}"
 
 # ===== Cluster constants (do not change unless instructed by Anza/Jito) =====
-export AG_ENTRYPOINT="64.130.37.11:8000"
-export AG_EXPECTED_SHRED_VERSION="25519"
-export AG_EXPECTED_GENESIS_HASH="DoJeJQZwEvKhDxn3uE1ZXNR5Bq1y4BAFkG2tDseV3Ga2"
-export AG_EXPECTED_BANK_HASH="2pM9pWtQcWQY4MuRhvCtNpFjBDZMxeNyDsusY2xT8K49"
+# Source: https://gist.github.com/AshwinSekar/71d0847fa3408be79ac41b93316c7929
+# 2026-05-15: cluster re-spun — these replace the old 25519 / DoJeJ... values.
+export AG_ENTRYPOINT1="64.130.37.11:8000"
+export AG_ENTRYPOINT2="213.239.141.10:8001"
+export AG_EXPECTED_SHRED_VERSION="61773"
+export AG_EXPECTED_GENESIS_HASH="EWmdgUv3HA8184C27qBDQRHMcQdW6kGTr3pMb67tUPXJ"
+export AG_EXPECTED_BANK_HASH="4GWsshLJm3tHGcQko1rBp34LfSdwYCkuYp8GXZAbRRVX"
 export AG_WAIT_FOR_SUPERMAJORITY="0"
 
 # ===== Metrics =====

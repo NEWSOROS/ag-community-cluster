@@ -4,20 +4,28 @@
 
 Tooling and runbook for joining the Alpenglow community cluster. The cluster is currently waiting for super majority to start. Operators not in the genesis set can still join — stake will be delegated afterwards.
 
-Original instructions: [tigarcia/bf6ea6585c29c764f3820d9176eeb8f1](https://gist.github.com/tigarcia/bf6ea6585c29c764f3820d9176eeb8f1)
+Current upstream instructions (2026-05-15 cluster re-spin):
+[AshwinSekar/71d0847fa3408be79ac41b93316c7929](https://gist.github.com/AshwinSekar/71d0847fa3408be79ac41b93316c7929)
+(prior version: [tigarcia/bf6ea6585c29c764f3820d9176eeb8f1](https://gist.github.com/tigarcia/bf6ea6585c29c764f3820d9176eeb8f1))
 
-## Cluster Constants
+## Cluster Constants (2026-05-15 re-spin)
 
 | Field | Value |
 |-------|-------|
 | Source repo | `https://github.com/AshwinSekar/solana.git` |
-| Branch | `alpenglow` |
-| Entrypoint | `64.130.37.11:8000` |
-| Expected shred version | `25519` |
-| Expected genesis hash | `DoJeJQZwEvKhDxn3uE1ZXNR5Bq1y4BAFkG2tDseV3Ga2` |
-| Expected bank hash | `2pM9pWtQcWQY4MuRhvCtNpFjBDZMxeNyDsusY2xT8K49` |
+| **Git ref** | tag **`ag-v0.2.0`** (was branch `alpenglow`) |
+| Expected `--version` | `agave-validator 0.2.0 (src:fa5b2c96; feat:f4b7e03c, client:Agave)` |
+| Entrypoint 1 | `64.130.37.11:8000` |
+| Entrypoint 2 | `213.239.141.10:8001` |
+| Expected shred version | `61773` |
+| Expected genesis hash | `EWmdgUv3HA8184C27qBDQRHMcQdW6kGTr3pMb67tUPXJ` |
+| Expected bank hash | `4GWsshLJm3tHGcQko1rBp34LfSdwYCkuYp8GXZAbRRVX` |
 | Wait for supermajority | slot `0` |
 | Metrics DB | `alpenglow-testnet` on `metrics.solana.com:8086` |
+
+> **The cluster was re-spun on 2026-05-15.** Any existing ledger from the
+> previous run is incompatible (genesis hash changed). Use `reset-ledger.sh`
+> before the first start with this revision.
 
 ## Quick start
 
@@ -26,20 +34,27 @@ Original instructions: [tigarcia/bf6ea6585c29c764f3820d9176eeb8f1](https://gist.
 git clone https://github.com/NEWSOROS/ag-community-cluster.git
 cd ag-community-cluster
 
-# 2. Build the alpenglow agave fork (~25-40 min on a fast box)
+# 2. Pick storage layout BEFORE the build: edit config/env.sh
+#    AG_USER, AG_LEDGER, AG_ACCOUNTS, AG_LOG, AG_HOME, AG_RPC_PORT, AG_DYNAMIC_PORT_RANGE
+
+# 3. Build agave-validator ag-v0.2.0 (~25-40 min on a fast box)
 ./scripts/build-alpenglow.sh
+# Verify: $AG_BIN --version  → should start with "agave-validator 0.2.0"
 
-# 3. Generate identity + vote-account keypairs (skip if you already have them)
-./scripts/keygen.sh
+# 4. Drop the existing keypairs into $AG_SECRETS_DIR (default /home/<user>/.secrets/alpenglow/):
+#    - identity.json
+#    - vote-account-keypair.json
+# Or generate fresh ones — only if not joining with an already-registered identity:
+#    ./scripts/keygen.sh
 
-# 4. Pick storage layout: edit config/env.sh
-#    AG_LEDGER, AG_ACCOUNTS, AG_LOG, AG_HOME, AG_BIN
+# 5. Stop any previous validator AND wipe the old ledger (REQUIRED — cluster was re-spun):
+sudo ./scripts/reset-ledger.sh --yes
 
-# 5. Install the systemd unit and start
+# 6. Install the systemd unit and start
 sudo ./scripts/install-service.sh
 sudo systemctl start agave-alpenglow
 
-# 6. Watch it wait for supermajority
+# 7. Watch it wait for supermajority
 sudo -u solana agave-validator -l "$AG_LEDGER" monitor
 ```
 
@@ -47,8 +62,9 @@ sudo -u solana agave-validator -l "$AG_LEDGER" monitor
 
 ```
 scripts/
-  build-alpenglow.sh      Clone + checkout + cargo build (validator-only)
-  keygen.sh               Generate identity + vote-account keypairs
+  build-alpenglow.sh      Clone + checkout ag-v0.2.0 + cargo build (validator-only)
+  keygen.sh               Generate identity + vote-account keypairs (skip if you have them)
+  reset-ledger.sh         Step 0 — stop validator + wipe ledger (required after re-spin)
   install-service.sh      Render env.sh into systemd unit + enable
   start-validator.sh      Direct foreground start (no systemd) — for testing
 config/
