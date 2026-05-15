@@ -76,4 +76,4 @@ echo
 echo "Next:"
 echo "  ./scripts/keygen.sh           — only if you don't have keypairs yet"
 echo "  sudo ./scripts/install-service.sh"
-echo "  sudo systemctl start agave-alpenglow"
+echo "  sudo systemctl start solana-validator"

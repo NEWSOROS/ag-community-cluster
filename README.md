@@ -52,7 +52,7 @@ sudo ./scripts/reset-ledger.sh --yes
 
 # 6. Install the systemd unit and start
 sudo ./scripts/install-service.sh
-sudo systemctl start agave-alpenglow
+sudo systemctl start solana-validator
 
 # 7. Watch it wait for supermajority
 sudo -u solana agave-validator -l "$AG_LEDGER" monitor
@@ -71,7 +71,7 @@ config/
   env.sh                  All paths and env vars in one file (source me)
   validator-args.sh       The agave-validator arg list — single source of truth
 systemd/
-  agave-alpenglow.service.tmpl   Systemd template; install-service.sh fills it
+  solana-validator.service.tmpl   Systemd template; install-service.sh fills it
 docs/
   README.ru.md            Russian version of this document
   troubleshooting.md      Common issues + log snippets

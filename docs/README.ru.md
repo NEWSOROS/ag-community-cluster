@@ -49,7 +49,7 @@ sudo ./scripts/reset-ledger.sh --yes
 
 # 6. Установить systemd unit и стартовать:
 sudo ./scripts/install-service.sh
-sudo systemctl start agave-alpenglow
+sudo systemctl start solana-validator
 
 # 7. Смотрим, как ждём супер-большинство:
 sudo -u solana agave-validator -l "$AG_LEDGER" monitor
@@ -68,7 +68,7 @@ config/
   env.sh                 Все пути и переменные в одном месте
   validator-args.sh      Argv для agave-validator — единый источник правды
 systemd/
-  agave-alpenglow.service.tmpl   Шаблон unit, install-service.sh подставляет
+  solana-validator.service.tmpl   Шаблон unit, install-service.sh подставляет
 docs/
   README.ru.md           Этот файл
   troubleshooting.md     Типичные проблемы + куски логов

@@ -21,7 +21,7 @@ fi
 if [ "${1:-}" != "--yes" ]; then
   cat <<EOF
 This will:
-  1. systemctl stop agave-alpenglow  (if running)
+  1. systemctl stop solana-validator  (if running)
   2. rm -rf $AG_LEDGER/*
   3. rm -rf $AG_ACCOUNTS/*
 
@@ -36,11 +36,11 @@ fi
 
 echo "=== Step 0: stop validator + reset ledger ==="
 
-if systemctl list-unit-files | grep -q "^agave-alpenglow.service"; then
-  echo "Stopping agave-alpenglow..."
-  systemctl stop agave-alpenglow || true
+if systemctl list-unit-files | grep -q "^solana-validator.service"; then
+  echo "Stopping solana-validator..."
+  systemctl stop solana-validator || true
 else
-  echo "agave-alpenglow service not installed yet — skipping stop"
+  echo "solana-validator service not installed yet — skipping stop"
 fi
 
 # Wipe ledger + accounts content but keep the mount points / directories
@@ -59,5 +59,5 @@ done
 echo "=== Ledger reset complete ==="
 echo
 echo "Next:"
-echo "  sudo systemctl start agave-alpenglow"
+echo "  sudo systemctl start solana-validator"
 echo "  sudo -u $AG_USER $AG_BIN -l $AG_LEDGER monitor"

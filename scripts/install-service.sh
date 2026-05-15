@@ -1,5 +1,5 @@
 #!/bin/bash
-# Render systemd/agave-alpenglow.service.tmpl with values from config/env.sh
+# Render systemd/solana-validator.service.tmpl with values from config/env.sh
 # and install it to /etc/systemd/system/. Must run as root (or via sudo).
 
 set -euo pipefail
@@ -10,8 +10,8 @@ if [ "$(id -u)" -ne 0 ]; then
 fi
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-TMPL="$REPO_DIR/systemd/agave-alpenglow.service.tmpl"
-DEST="/etc/systemd/system/agave-alpenglow.service"
+TMPL="$REPO_DIR/systemd/solana-validator.service.tmpl"
+DEST="/etc/systemd/system/solana-validator.service"
 
 # shellcheck disable=SC1091
 source "$REPO_DIR/config/env.sh"
@@ -66,11 +66,11 @@ chmod 644 "$DEST"
 echo "Installed: $DEST"
 echo
 systemctl daemon-reload
-systemctl enable agave-alpenglow.service
+systemctl enable solana-validator.service
 
 echo
 echo "=== Service installed and enabled ==="
-echo "Start  : sudo systemctl start agave-alpenglow"
-echo "Status : systemctl status agave-alpenglow"
-echo "Logs   : journalctl -u agave-alpenglow -f"
+echo "Start  : sudo systemctl start solana-validator"
+echo "Status : systemctl status solana-validator"
+echo "Logs   : journalctl -u solana-validator -f"
 echo "Monitor: sudo -u $AG_USER $AG_BIN -l $AG_LEDGER monitor"

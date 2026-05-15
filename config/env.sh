@@ -8,7 +8,7 @@ export AG_HOME="${AG_HOME:-/home/$AG_USER}"
 
 # ===== Source build location =====
 # Where build-alpenglow.sh clones AshwinSekar/solana
-export AG_SRC_DIR="${AG_SRC_DIR:-$AG_HOME/agave-alpenglow}"
+export AG_SRC_DIR="${AG_SRC_DIR:-$AG_HOME/solana-validator}"
 # Git ref to check out (tag from Ashwin's gist).
 # 2026-05-15: ag-v0.2.0  (cluster genesis re-spun, super-majority pending)
 export AG_GIT_REF="${AG_GIT_REF:-ag-v0.2.0}"

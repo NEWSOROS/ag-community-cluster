@@ -28,7 +28,7 @@ Then re-render the unit:
 
 ```bash
 sudo ./scripts/install-service.sh
-sudo systemctl restart agave-alpenglow
+sudo systemctl restart solana-validator
 ```
 
 ## "Failed to start: bind: Address already in use" on a gossip/turbine port
@@ -45,9 +45,9 @@ export AG_DYNAMIC_PORT_RANGE="13000-15000"
 Your local ledger drifted from the cluster genesis. Wipe the ledger and accounts:
 
 ```bash
-sudo systemctl stop agave-alpenglow
+sudo systemctl stop solana-validator
 sudo rm -rf "$AG_LEDGER"/* "$AG_ACCOUNTS"/*
-sudo systemctl start agave-alpenglow
+sudo systemctl start solana-validator
 ```
 
 (`AG_LEDGER` and `AG_ACCOUNTS` from `config/env.sh`.)
@@ -69,7 +69,7 @@ Or build on another box and `scp` the binary into `$AG_INSTALL_DIR/bin/`.
 Look at the journal:
 
 ```bash
-journalctl -u agave-alpenglow -n 200 --no-pager
+journalctl -u solana-validator -n 200 --no-pager
 ```
 
 Common causes:
@@ -82,7 +82,7 @@ Common causes:
 `limit-ledger-size` is on, but `--log` writes to a single file. Add logrotate:
 
 ```
-# /etc/logrotate.d/agave-alpenglow
+# /etc/logrotate.d/solana-validator
 $AG_LOG {
   daily
   rotate 1
@@ -90,7 +90,7 @@ $AG_LOG {
   compress
   missingok
   postrotate
-    systemctl kill -s USR1 agave-alpenglow.service
+    systemctl kill -s USR1 solana-validator.service
   endscript
 }
 ```
