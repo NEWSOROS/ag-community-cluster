@@ -26,10 +26,27 @@ LOG_DIR="$MNT/log"
 RAMDISK_SIZE="32G"
 NEW_HOSTNAME="testnet-cho-p1"
 
-# Hot canary IP that is allowed to SSH in.  CHANGE if your home IP rotates.
-TRUSTED_SSH_IPS=(
-    "92.185.46.212"   # operator canary
+# Firewall — mirror of sv-manager roles/firewall/tasks/main.yaml + group_vars/all.yml
+# Keep this list in sync with inventory/group_vars/all.yml:allowed_subnets.
+ALLOWED_SUBNETS=(
+    "127.0.0.1/32"        # local
+    "92.185.46.212/32"    # operator canary (was .120 before reboot)
+    "206.81.31.16/32"     # vpn DO
+    "144.76.112.244/32"   # OpenClaw build-server
+    "37.27.104.158/32"    # monitoring-hel-1
 )
+DENY_SUBNETS=(
+    "10.0.0.0/8"
+    "172.16.0.0/12"
+    "192.168.0.0/16"
+    # 100.64.0.0/10 excluded because Tailscale is enabled
+    "198.18.0.0/15"
+)
+TAILSCALE_SUBNET="100.64.0.0/10"
+# Alpenglow's --dynamic-port-range is 9000-12500 (per gist) — not the
+# 8000-8800 default the rest of sv-manager uses for mainnet validators.
+OPEN_SOLANA_PORTS_START=9000
+OPEN_SOLANA_PORTS_END=12500
 
 # ---------- 0. preliminaries -------------------------------------------
 echo "--- set hostname ---"
@@ -208,24 +225,38 @@ echo "  chrony unit: $CHRONY_UNIT"
 systemctl enable --now "$CHRONY_UNIT"
 systemctl restart "$CHRONY_UNIT"
 
-# ---------- 7. UFW -----------------------------------------------------
+# ---------- 7. UFW (mirror of sv-manager roles/firewall) --------------
 echo "--- UFW ---"
 ufw --force reset >/dev/null
+# IPv6 off (same as Ansible role)
+sed -i -E 's|^IPV6=.*|IPV6=no|' /etc/default/ufw
 ufw default deny incoming
 ufw default allow outgoing
-# Tailscale CGNAT subnet — full access (SSH, node_exporter, etc.)
-ufw allow from 100.64.0.0/10 comment "Tailscale tailnet"
-# Tailscale direct WireGuard port
-ufw allow 41641/udp comment "Tailscale WireGuard"
-# SSH from trusted IPs only
-for ip in "${TRUSTED_SSH_IPS[@]}"; do
-    ufw allow from "$ip" to any port 22 proto tcp comment "trusted SSH"
+
+# SSH from trusted subnets (allowed_subnets)
+for s in "${ALLOWED_SUBNETS[@]}"; do
+    ufw allow from "$s" to any port 22 proto tcp comment "SSH trusted"
 done
-# Alpenglow dynamic port range (9000-12500 both)
-ufw allow 9000:12500/tcp comment "Alpenglow dynamic"
-ufw allow 9000:12500/udp comment "Alpenglow dynamic"
-# Optional public RPC (8899) — leave closed by default, open later if needed
-# ufw allow 8899/tcp comment "RPC public"
+# SSH from Tailscale CGNAT
+ufw allow from "$TAILSCALE_SUBNET" to any port 22 proto tcp comment "SSH Tailscale"
+
+# Solana / Alpenglow dynamic port range (TCP+UDP)
+ufw allow "${OPEN_SOLANA_PORTS_START}:${OPEN_SOLANA_PORTS_END}/tcp" comment "Alpenglow dynamic"
+ufw allow "${OPEN_SOLANA_PORTS_START}:${OPEN_SOLANA_PORTS_END}/udp" comment "Alpenglow dynamic"
+
+# Full access from trusted subnets (matches Ansible step "Allow access from trusted subnets")
+for s in "${ALLOWED_SUBNETS[@]}"; do
+    ufw allow from "$s" comment "trusted full"
+done
+
+# node_exporter :9100 from Tailscale (Prometheus scrape)
+ufw allow from "$TAILSCALE_SUBNET" to any port 9100 proto tcp comment "node-exporter (Tailscale)"
+
+# Deny outbound to private networks (Tailscale CGNAT excluded — Tailscale on)
+for s in "${DENY_SUBNETS[@]}"; do
+    ufw deny out to "$s"
+done
+
 ufw --force enable
 
 # ---------- 8. disable auto-reboot ------------------------------------
